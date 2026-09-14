@@ -95,7 +95,8 @@ describe("CI contracts", () => {
       "git ls-files -co --exclude-standard",
     );
     expect(secrets).toContain("printf 'clean fixture\\n'");
-    expect(secrets).toContain('"RuleID": "generic-api-key"');
+    expect(secrets).toContain('finding?.RuleID === "generic-api-key"');
+    expect(secrets).toContain('finding.File.endsWith("/secret.txt")');
     expect(secrets).toContain("scanner_report");
     expect(secrets).toContain('lefthook" install');
     expect(secrets).toContain('git -C "$fixture_repo" commit');

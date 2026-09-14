@@ -315,7 +315,15 @@ jobs:
             echo "pinned Gitleaks did not identify the synthetic generic-api-key fixture" >&2
             exit 1
           fi
-          rg -q '"RuleID": "generic-api-key"' "$scanner_report"
+          REPORT_PATH="$scanner_report" node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const report = JSON.parse(readFileSync(process.env.REPORT_PATH, "utf8"));
+            const identified = Array.isArray(report) && report.some((finding) =>
+              finding?.RuleID === "generic-api-key" &&
+              typeof finding?.File === "string" && finding.File.endsWith("/secret.txt"),
+            );
+            if (!identified) process.exit(1);
+          '
           if git -C "$fixture_repo" commit -m "fixture secret" >/dev/null; then
             echo "pre-commit hook did not reject the fixture" >&2
             exit 1
