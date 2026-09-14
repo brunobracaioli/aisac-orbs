@@ -1,7 +1,7 @@
 # Wave 0 validation record
 
 Date: 2026-09-14
-Status: local acceptance passed; hosted G0 evidence pending
+Status: local acceptance and PR CI passed; maintainer/main/admin G0 evidence pending
 Normative SPEC: 0.2.0
 Implementation plan: 1.2.0 (maintainer-approved baseline 1.1.0)
 
@@ -50,9 +50,15 @@ The actual workflow hook step was executed in a disposable Git repository with t
 
 The initial all-zero project-key fixture was not recognized and correctly caused the acceptance check to fail. Only the fixture and its verification were corrected; scanning policy was not relaxed. The final workflow/hook changes passed focused CI/hygiene/PRNG tests (15 passed), lint and formatting after the aggregate run.
 
-## Pending hosted evidence
+## Hosted PR validation
 
-- Reviewed PR and successful GitHub Actions checks for the candidate.
+[PR #1](https://github.com/brunobracaioli/aisac-orbs/pull/1) at `63a9a4009df769c9c427a0e41442286182bd708c` passed every stage 00–11: [CI run](https://github.com/brunobracaioli/aisac-orbs/actions/runs/34908184281) and [CodeQL run](https://github.com/brunobracaioli/aisac-orbs/actions/runs/34908184309). The first hosted run exposed the runner's missing `rg` utility in the hook fixture; the check now validates JSON through Node. The installed hook still accepts a clean commit and blocks the verified synthetic finding. No open code-scanning alerts were returned for the PR reference.
+
+This record is tied to the named source commit. The PR check rollup is authoritative for subsequent revisions.
+
+## Pending G0 evidence
+
+- Maintainer review and approval of the validated PR.
 - CodeQL results on both candidate and base, with high-or-higher security alerts blocked by the configured ruleset.
 - Integration on `main`, main-branch CI, and activation/verification of [.github/rulesets/main.json](../../.github/rulesets/main.json).
 - Activation/verification of private vulnerability reporting before declaring that channel active.

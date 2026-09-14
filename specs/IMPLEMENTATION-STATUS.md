@@ -24,18 +24,18 @@ Provider spending, deployment, release publication and repository administration
 
 ## Units and evidence
 
-| Unit                                | Status                                 | Evidence                                                                                                                                                                                |
-| ----------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| W0 §4.1 scaffold/toolchain          | Implemented and validated locally      | Frozen install, formatting, lint, strict TypeScript and production build passed from a clean source snapshot.                                                                           |
-| W0 §4.5 requirement tooling         | Implemented and validated locally      | Strict YAML/CLI validation, trusted baseline comparison, runtime report accounting, negative tests and read-only deterministic generation pass.                                         |
-| W0 §4.8 amendment adoption          | Applied and validated locally          | SPEC/package/lock 0.2.0, 114 unique IDs, 126 transition rows; all 73 baseline requirement sentences and levels preserved.                                                               |
-| W0 §4.2 kernel                      | Implemented and validated locally      | Injected time, chronological fake scheduler, seeded PRNG, defensive logger and easing properties; core coverage 94.02% lines / 88.04% branches.                                         |
-| W0 §4.3 architecture guard          | Implemented and validated locally      | Positive/negative boundary fixtures; zero errors. Three configured orphan warnings concern dynamically loaded config/generated files. Both W0-owned requirements have passing evidence. |
-| W0 §4.6 security / §4.4 WebGL spike | Implemented and validated locally      | Production CSP and fallback; 4 browser cases pass, 2 opposite-project cases are intentionally skipped. Bundle, dependency-license, vulnerability and secret scans pass.                 |
-| W0 §4.7 hygiene / CI integration    | Implemented; hosted validation pending | Policy files, ADRs, workflows and unapplied main ruleset exist. Installed hook accepts a clean commit and rejects the verified synthetic secret fixture.                                |
-| W1–W8                               | Pending                                | Dependency gates and respective acceptance criteria apply.                                                                                                                              |
+| Unit                                | Status                                       | Evidence                                                                                                                                                                                |
+| ----------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| W0 §4.1 scaffold/toolchain          | Implemented and validated locally            | Frozen install, formatting, lint, strict TypeScript and production build passed from a clean source snapshot.                                                                           |
+| W0 §4.5 requirement tooling         | Implemented and validated locally            | Strict YAML/CLI validation, trusted baseline comparison, runtime report accounting, negative tests and read-only deterministic generation pass.                                         |
+| W0 §4.8 amendment adoption          | Applied and validated locally                | SPEC/package/lock 0.2.0, 114 unique IDs, 126 transition rows; all 73 baseline requirement sentences and levels preserved.                                                               |
+| W0 §4.2 kernel                      | Implemented and validated locally            | Injected time, chronological fake scheduler, seeded PRNG, defensive logger and easing properties; core coverage 94.02% lines / 88.04% branches.                                         |
+| W0 §4.3 architecture guard          | Implemented and validated locally            | Positive/negative boundary fixtures; zero errors. Three configured orphan warnings concern dynamically loaded config/generated files. Both W0-owned requirements have passing evidence. |
+| W0 §4.6 security / §4.4 WebGL spike | Implemented and validated locally            | Production CSP and fallback; 4 browser cases pass, 2 opposite-project cases are intentionally skipped. Bundle, dependency-license, vulnerability and secret scans pass.                 |
+| W0 §4.7 hygiene / CI integration    | Implemented; PR CI passed, G0 review pending | Policy files, ADRs, workflows and unapplied main ruleset exist. Installed hook accepts a clean commit and rejects the verified synthetic secret fixture.                                |
+| W1–W8                               | Pending                                      | Dependency gates and respective acceptance criteria apply.                                                                                                                              |
 
-**G0 is not closed.** Local acceptance passed; hosted CI, maintainer review, main-branch integration and repository protections still need their concrete evidence. Code of conduct uses a minimal public request to arrange a private reporting channel until a dedicated address is supplied.
+**G0 is not closed.** Local acceptance and hosted PR CI passed. Maintainer review, main-branch integration and repository protections still need their concrete evidence. The pre-G2 CI measurement plan is recorded with the initial successful sample. Code of conduct uses a minimal public request to arrange a private reporting channel until a dedicated address is supplied.
 
 ## Final local validation
 
@@ -45,6 +45,8 @@ The requirement report has 114 rows: 8 have passing test evidence, 105 carry exp
 
 The initial clean CI run exposed two fixture tests that inherited CI lock policy without providing fixture baselines. Those tests were corrected without relaxing production checks, a CI missing-baseline regression was added, and unique temporary directories now prevent cross-run contamination. The subsequent full run passed. An additional installed-hook check exposed an invalid all-zero synthetic fixture; it was replaced with a deterministic signature identified by the pinned scanner, and both clean acceptance and secret rejection were verified. The final hook/workflow changes received focused CI/hygiene validation after the aggregate run.
 
+The implementation is committed on `feat/w0-foundation-20260914` in [PR #1](https://github.com/brunobracaioli/aisac-orbs/pull/1). Commit `63a9a4009df769c9c427a0e41442286182bd708c` passed all hosted stages 00–11, including CodeQL.
+
 See [the W0 validation record](../docs/reference/wave-00-validation.md) for commands, limits and remaining hosted evidence. Local aggregate reports are under `reports/`; they are generated artifacts, not committed passing-test claims.
 
 ## Continuity
@@ -53,4 +55,4 @@ The manager confirmed the planning-recovery workloop state and read its canonica
 
 Native worker actor allocation was unavailable in this runtime. Workers were instructed not to mutate the shared manager identity; their collaboration handoffs were reconciled by the primary.
 
-Next action: prepare the reviewed W0 PR, run hosted checks, and present the concrete merge/protection changes for maintainer review before closing G0 or starting dependent waves.
+Next action: maintainer review of PR #1, main integration and application/verification of the checked-in main ruleset and private vulnerability reporting before closing G0 and starting dependent waves.
