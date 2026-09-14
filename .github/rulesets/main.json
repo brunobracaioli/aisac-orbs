@@ -1,0 +1,63 @@
+{
+  "name": "main-protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": true,
+        "require_last_push_approval": true,
+        "required_approving_review_count": 1,
+        "required_review_thread_resolution": true
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          { "context": "stage-00-setup", "integration_id": null },
+          { "context": "stage-01-lint-format", "integration_id": null },
+          { "context": "stage-02-typecheck", "integration_id": null },
+          { "context": "stage-03-architecture", "integration_id": null },
+          { "context": "stage-04-unit-integration", "integration_id": null },
+          { "context": "stage-05-build", "integration_id": null },
+          { "context": "stage-06-bundle-secret-scan", "integration_id": null },
+          { "context": "stage-07-e2e", "integration_id": null },
+          { "context": "stage-08-req-coverage", "integration_id": null },
+          { "context": "stage-09-sast-codeql", "integration_id": null },
+          { "context": "stage-10-sca-license", "integration_id": null },
+          { "context": "stage-11-secrets", "integration_id": null }
+        ],
+        "strict_required_status_checks_policy": true
+      }
+    },
+    {
+      "type": "code_scanning",
+      "parameters": {
+        "code_scanning_tools": [
+          {
+            "tool": "CodeQL",
+            "alerts_threshold": "errors",
+            "security_alerts_threshold": "high_or_higher"
+          }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}

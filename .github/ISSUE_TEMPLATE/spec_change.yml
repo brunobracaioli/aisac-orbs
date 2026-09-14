@@ -1,0 +1,36 @@
+name: Specification change
+description: Propose a normative contract or requirement change.
+title: "spec: "
+labels: [spec-change]
+body:
+  - type: input
+    id: ids
+    attributes:
+      label: Affected requirement IDs
+      description: List every existing ID and any proposed new ID.
+    validations:
+      required: true
+  - type: dropdown
+    id: level
+    attributes:
+      label: Proposed level
+      options:
+        - MUST
+        - MUST NOT
+        - SHOULD
+        - MAY
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+    validations:
+      required: true
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration and compatibility
+      description: Explain affected implementations, tests, and release notes.
+    validations:
+      required: true

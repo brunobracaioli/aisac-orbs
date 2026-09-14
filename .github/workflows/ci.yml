@@ -1,0 +1,322 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      baseline_sha:
+        description: Full commit SHA whose requirement lock is the trusted baseline for this manual run.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PNPM_VERSION: 10.18.2
+  NODE_VERSION: 22.22.2
+
+jobs:
+  setup:
+    name: stage-00-setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            ~/.cache/ms-playwright
+            .next/cache
+          key: ${{ runner.os }}-w0-${{ hashFiles('pnpm-lock.yaml') }}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+  lint:
+    name: stage-01-lint-format
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec eslint .
+      - run: pnpm exec prettier --check .
+
+  typecheck:
+    name: stage-02-typecheck
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm spec:ids --check
+
+  architecture:
+    name: stage-03-architecture
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm arch
+
+  unit:
+    name: stage-04-unit-integration
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: mkdir -p reports
+      - run: pnpm exec vitest run --coverage --reporter=default --reporter=json --outputFile=reports/vitest.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: vitest-report
+          path: |
+            reports/vitest.json
+            reports/coverage
+          retention-days: 14
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: vitest-diagnostics
+          path: |
+            reports
+            test-results
+          retention-days: 14
+          if-no-files-found: warn
+
+  build:
+    name: stage-05-build
+    needs: [setup, lint, typecheck, architecture, unit]
+    outputs:
+      canary: ${{ steps.canary.outputs.value }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - name: Generate per-run bundle canary
+        id: canary
+        run: echo "value=sk-canary-$(openssl rand -hex 16)" >> "$GITHUB_OUTPUT"
+      - name: Build with scrubbed environment
+        run: env -i HOME="$HOME" PATH="$PATH" CI=true NODE_ENV=production ORB_SMOKE_ROUTES=1 NEXT_PUBLIC_ORB_SEED=1 ORB_BUNDLE_CANARY="${{ steps.canary.outputs.value }}" pnpm build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: next-build
+          path: .next
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+
+  bundle-secret-scan:
+    name: stage-06-bundle-secret-scan
+    needs: build
+    runs-on: ubuntu-24.04
+    env:
+      ORB_BUNDLE_CANARY: ${{ needs.build.outputs.canary }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with: { name: next-build, path: .next }
+      - run: pnpm scan:bundle
+
+  e2e:
+    name: stage-07-e2e
+    needs: [build, bundle-secret-scan]
+    runs-on: ubuntu-24.04
+    env:
+      ORB_BUNDLE_CANARY: ${{ needs.build.outputs.canary }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with: { name: next-build, path: .next }
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Run browser checks in a scrubbed environment
+        run: env -i HOME="$HOME" PATH="$PATH" CI=true NODE_ENV=production ORB_SMOKE_ROUTES=1 NEXT_PUBLIC_ORB_SEED=1 ORB_E2E_REUSE_BUILD=1 pnpm exec playwright test --project=chromium-swiftshader --project=chromium-nowebgl
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: playwright-report
+          path: reports/playwright.json
+          retention-days: 14
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: playwright-diagnostics
+          path: |
+            test-results
+            playwright-report
+            reports/playwright.json
+          retention-days: 14
+          if-no-files-found: warn
+
+  req-coverage:
+    name: stage-08-req-coverage
+    needs: [unit, e2e]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with: { name: vitest-report, path: reports }
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with: { name: playwright-report, path: reports }
+      - name: Prepare trusted baseline from the reviewed base commit
+        id: trusted-baseline
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event_name == 'push' && github.event.before || github.event.inputs.baseline_sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            echo "A trusted baseline SHA is required for this event." >&2
+            exit 2
+          fi
+          git rev-parse --verify "$BASE_SHA^{commit}" >/dev/null
+          baseline_dir="$RUNNER_TEMP/aisac-orbs-req-baseline"
+          mkdir -p "$baseline_dir"
+          baseline_lock="$baseline_dir/requirement-ids.lock"
+          if git cat-file -e "$BASE_SHA:specs/requirement-ids.lock" 2>/dev/null; then
+            git show "$BASE_SHA:specs/requirement-ids.lock" > "$baseline_lock"
+          else
+            git show "$BASE_SHA:SPEC.md" > "$baseline_dir/SPEC.md"
+            if git cat-file -e "$BASE_SHA:specs/requirements.overrides.yaml" 2>/dev/null; then
+              git show "$BASE_SHA:specs/requirements.overrides.yaml" > "$baseline_dir/requirements.overrides.yaml"
+            else
+              printf 'provisional: []\nmanual: []\nwaivers: []\n' > "$baseline_dir/requirements.overrides.yaml"
+            fi
+            CI=false pnpm exec tsx scripts/req-coverage.ts --spec "$baseline_dir/SPEC.md" --overrides "$baseline_dir/requirements.overrides.yaml" --lock "$baseline_lock" --types "$baseline_dir/requirement-ids.ts" --emit-types --write-lock
+          fi
+          printf 'path=%s\n' "$baseline_lock" >> "$GITHUB_OUTPUT"
+      - name: Check requirement evidence against trusted baseline
+        env:
+          GITHUB_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+        run: pnpm exec tsx scripts/req-coverage.ts --reports-only --gate wave-00-foundation --check-lock --baseline-lock "${{ steps.trusted-baseline.outputs.path }}" --json reports/req-coverage.json --md reports/req-coverage.md
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: requirement-coverage
+          path: reports/req-coverage.*
+          if-no-files-found: error
+
+  sca-license:
+    name: stage-10-sca-license
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level=high
+      - run: pnpm scan:licenses
+
+  secrets:
+    name: stage-11-secrets
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@0c17529a66aca453f9227af23103ed11469b1e47 # v4.0.0
+        with: { version: 10.18.2 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 22.22.2, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - name: Install pinned Gitleaks binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=8.24.2
+          archive="gitleaks_${version}_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location "https://github.com/gitleaks/gitleaks/releases/download/v${version}/${archive}" --output "/tmp/${archive}"
+          echo "fa0500f6b7e41d28791ebc680f5dd9899cd42b58629218a5f041efa899151a8e  /tmp/${archive}" | sha256sum --check
+          tar -xzf "/tmp/${archive}" -C /tmp gitleaks
+          install -m 0755 /tmp/gitleaks "$RUNNER_TEMP/gitleaks"
+      - name: Scan Git history and the current working tree
+        run: |
+          export PATH="$RUNNER_TEMP:$PATH"
+          pnpm scan:secrets
+      - name: Verify the installed pre-commit hook in a disposable repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture_repo="$(mktemp -d)"
+          trap 'rm -rf "$fixture_repo"' EXIT
+          cp lefthook.yml .gitleaks.toml "$fixture_repo/"
+          git -C "$fixture_repo" init -q
+          git -C "$fixture_repo" config user.email ci@example.invalid
+          git -C "$fixture_repo" config user.name "CI Hook Fixture"
+          export PATH="$RUNNER_TEMP:$PATH"
+          (cd "$fixture_repo" && "$GITHUB_WORKSPACE/node_modules/.bin/lefthook" install)
+          printf 'clean fixture\n' > "$fixture_repo/README.txt"
+          git -C "$fixture_repo" add README.txt
+          git -C "$fixture_repo" commit -m "clean fixture" >/dev/null
+          synthetic_key_value="$(printf '0123456789abcdef%.0s' {1..3})"
+          printf 'api_key = "%s"\n' "$synthetic_key_value" > "$fixture_repo/secret.txt"
+          git -C "$fixture_repo" add secret.txt
+          scanner_report="$fixture_repo/gitleaks.json"
+          if "$RUNNER_TEMP/gitleaks" dir --redact --no-banner --config "$GITHUB_WORKSPACE/.gitleaks.toml" --report-format json --report-path "$scanner_report" "$fixture_repo/secret.txt"; then
+            echo "pinned Gitleaks did not identify the synthetic generic-api-key fixture" >&2
+            exit 1
+          fi
+          rg -q '"RuleID": "generic-api-key"' "$scanner_report"
+          if git -C "$fixture_repo" commit -m "fixture secret" >/dev/null; then
+            echo "pre-commit hook did not reject the fixture" >&2
+            exit 1
+          fi

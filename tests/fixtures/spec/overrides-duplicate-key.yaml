@@ -1,0 +1,8 @@
+provisional: []
+manual: []
+waivers:
+  - idPattern: "^ORB-TEST-001$"
+    idPattern: "^ORB-TEST-002$"
+    reason: "duplicate fixture entry"
+    issue: "tests/fixtures/spec/overrides-duplicate-key.yaml"
+    waivedUntil: "2099-01-01"

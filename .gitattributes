@@ -1,0 +1,4 @@
+# Preserve upstream license bytes and the baseline SPEC fixture's Markdown hard breaks.
+# All other paths keep Git's normal trailing-whitespace checks.
+/docs/licenses/caniuse-lite-1.0.30001810-LICENSE.txt whitespace=-blank-at-eol
+/tests/fixtures/spec/baseline/SPEC-0.1.0.baseline.md whitespace=-blank-at-eol

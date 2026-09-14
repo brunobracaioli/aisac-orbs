@@ -1,0 +1,10 @@
+# Wave 0 baseline: later-wave obligations remain visible in the report while the
+# implementation is built. The gate rejects this pattern for current/completed
+# wave ownership (ORB-ARCH-001/002), so it cannot hide the active foundation work.
+provisional: []
+manual: []
+waivers:
+  - idPattern: "^ORB-(?!ARCH-00[12]$).*"
+    reason: "Wave 0 baseline: implementation is assigned to a later wave and the pattern is narrowed at each gate."
+    issue: "specs/IMPLEMENTATION-STATUS.md#units-and-evidence"
+    waivedUntil: "2026-10-31"

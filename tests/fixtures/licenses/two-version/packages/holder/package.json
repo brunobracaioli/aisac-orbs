@@ -1,0 +1,8 @@
+{
+  "name": "holder",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "versioned-package": "1.0.0"
+  }
+}
