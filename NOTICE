@@ -1,0 +1,27 @@
+AISAC Orbs
+Copyright 2026 Bruno Bracaioli and AISAC Orbs contributors.
+
+Licensed under the Apache License, Version 2.0.
+See LICENSE for the complete terms.
+
+Third-party dependencies reviewed for this toolchain:
+
+caniuse-lite 1.0.30001810 — Ben Briggs and Browserslist contributors.
+Browser support data: Alexis Deveria and Can I Use contributors.
+Source: https://github.com/browserslist/caniuse-lite
+Data source: https://caniuse.com/
+License: Creative Commons Attribution 4.0 International (CC-BY-4.0).
+https://creativecommons.org/licenses/by/4.0/
+AISAC Orbs has not modified this installed dependency.
+The license text is preserved in
+docs/licenses/caniuse-lite-1.0.30001810-LICENSE.txt.
+
+minimatch 10.2.6 — Isaac Z. Schlueter and contributors.
+Source: https://github.com/isaacs/minimatch
+License: Blue Oak Model License 1.0.0 (BlueOak-1.0.0).
+https://blueoakcouncil.org/license/1.0.0
+AISAC Orbs has not modified this installed dependency.
+The license text is preserved in
+docs/licenses/minimatch-10.2.6-LICENSE.md.
+
+These notices do not change the license of AISAC Orbs source code.

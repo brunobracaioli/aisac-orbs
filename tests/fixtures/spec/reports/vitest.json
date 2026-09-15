@@ -1,0 +1,13 @@
+{
+  "testResults": [
+    {
+      "name": "tests/unit/example.test.ts",
+      "assertionResults": [
+        { "fullName": "[ORB-TEST-001] deterministic transition", "status": "passed" },
+        { "fullName": "[ORB-TEST-002] invariant", "status": "failed" },
+        { "fullName": "[ORB-TEST-003] diagnostic", "status": "skipped" },
+        { "fullName": "[ORB-NOPE-999] unknown", "status": "passed" }
+      ]
+    }
+  ]
+}

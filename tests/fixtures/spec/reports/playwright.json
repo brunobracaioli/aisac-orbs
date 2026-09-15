@@ -1,0 +1,24 @@
+{
+  "suites": [
+    {
+      "title": "state",
+      "file": "tests/e2e/state.spec.ts",
+      "specs": [
+        {
+          "title": "determinism",
+          "tags": ["@ORB-TEST-001"],
+          "tests": [
+            { "expectedStatus": "passed", "status": "expected", "results": [{ "status": "passed" }] }
+          ]
+        },
+        {
+          "title": "skipped recommendation",
+          "tags": ["@ORB-TEST-002"],
+          "tests": [
+            { "expectedStatus": "passed", "status": "skipped", "results": [] }
+          ]
+        }
+      ]
+    }
+  ]
+}

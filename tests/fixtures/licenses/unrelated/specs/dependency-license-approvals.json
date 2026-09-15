@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "approvals": [
+    {
+      "package": "approved-package",
+      "version": "1.0.0",
+      "license": "BlueOak-1.0.0",
+      "licenseFile": "docs/licenses/approved.txt",
+      "licenseSha256": "3108caa7158f0a4a67332f5cb69b68402b3538729caa5af0f5292aa301630a61",
+      "installedLicenseFile": "LICENSE",
+      "noticeFile": "NOTICE"
+    }
+  ]
+}

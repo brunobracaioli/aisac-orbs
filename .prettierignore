@@ -1,0 +1,6 @@
+.next
+node_modules
+pnpm-lock.yaml
+reports
+docs/licenses/**
+tests/fixtures/spec/baseline/SPEC-0.1.0.baseline.md

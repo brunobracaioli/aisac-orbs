@@ -1,0 +1,27 @@
+name: Bug report
+description: Report a reproducible behavior problem.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, private data, or provider payloads.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: requirements
+    attributes:
+      label: Requirement IDs
+      description: List affected ORB requirement IDs, if known.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Give deterministic steps, environment, and a minimal fixture.
+    validations:
+      required: true

@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Non-secret canary values in dedicated test fixtures"
+paths = ['''^tests/fixtures/''']
+regexTarget = "match"
+regexes = ['''sk-canary-[0-9a-f]{16}''']

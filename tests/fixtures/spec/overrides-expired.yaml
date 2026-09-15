@@ -1,0 +1,7 @@
+provisional: []
+manual: []
+waivers:
+  - idPattern: "^ORB-TEST-001$"
+    reason: "expired fixture waiver"
+    issue: "tests/fixtures/spec/overrides-expired.yaml"
+    waivedUntil: "2020-01-01"

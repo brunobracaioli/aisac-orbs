@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "approvals": [
+    {
+      "package": "caniuse-lite",
+      "version": "1.0.30001810",
+      "license": "CC-BY-4.0",
+      "licenseFile": "docs/licenses/caniuse-lite-1.0.30001810-LICENSE.txt",
+      "licenseSha256": "fd3a263fe19ed8faa9068b43abaebafc02c77897b0c6fc09abc04bb592e5f16e",
+      "installedLicenseFile": "LICENSE",
+      "noticeFile": "NOTICE"
+    },
+    {
+      "package": "minimatch",
+      "version": "10.2.6",
+      "license": "BlueOak-1.0.0",
+      "licenseFile": "docs/licenses/minimatch-10.2.6-LICENSE.md",
+      "licenseSha256": "2c7c5d22ed5a8ee968c64757710979afcd77438c48b4a265b94e615babd8a901",
+      "installedLicenseFile": "LICENSE.md",
+      "noticeFile": "NOTICE"
+    }
+  ]
+}

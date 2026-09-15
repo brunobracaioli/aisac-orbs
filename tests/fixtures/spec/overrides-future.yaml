@@ -1,0 +1,7 @@
+provisional: []
+manual: []
+waivers:
+  - idPattern: "^ORB-TEST-001$"
+    reason: "future fixture waiver"
+    issue: "tests/fixtures/spec/overrides-future.yaml"
+    waivedUntil: "2099-01-01"

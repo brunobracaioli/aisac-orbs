@@ -1,0 +1,13 @@
+# Maintainer review is required for normative contracts, security boundaries,
+# provider adapters, workflows, and public repository policy.
+* @brunobracaioli
+SPEC.md @brunobracaioli
+specs/ @brunobracaioli
+.dependency-cruiser.cjs @brunobracaioli
+eslint.config.mjs @brunobracaioli
+.github/ @brunobracaioli
+adapters/ @brunobracaioli
+app/api/ @brunobracaioli
+assets/formations/ @brunobracaioli
+LICENSE @brunobracaioli
+SECURITY.md @brunobracaioli

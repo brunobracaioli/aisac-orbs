@@ -80,17 +80,17 @@ type OrbState =
 
 A state can map to a visual configuration such as:
 
-| State | Example visual |
-|---|---|
-| `idle` | Slowly rotating particle sphere |
-| `listening` | Expanding audio-reactive rings |
-| `thinking` | Turbulent neural-like particle cloud |
-| `tool_call` | Structured geometric formation |
-| `waiting_approval` | Stable gate-like formation |
-| `executing` | Dynamic connected network |
-| `success` | Stabilization / completion pulse |
-| `error` | Distortion / fragmentation |
-| `speaking` | Audio-reactive orb or face |
+| State              | Example visual                       |
+| ------------------ | ------------------------------------ |
+| `idle`             | Slowly rotating particle sphere      |
+| `listening`        | Expanding audio-reactive rings       |
+| `thinking`         | Turbulent neural-like particle cloud |
+| `tool_call`        | Structured geometric formation       |
+| `waiting_approval` | Stable gate-like formation           |
+| `executing`        | Dynamic connected network            |
+| `success`          | Stabilization / completion pulse     |
+| `error`            | Distortion / fragmentation           |
+| `speaking`         | Audio-reactive orb or face           |
 
 These mappings are visual representations of application state—not representations of model internals.
 
@@ -231,7 +231,7 @@ Conceptual API:
 ```ts
 await orb.registerFormation({
   name: "github",
-  source: "/formations/github.svg"
+  source: "/formations/github.svg",
 });
 
 orb.morphTo("github");
@@ -263,8 +263,8 @@ orb.emit({
   timestamp: Date.now(),
   correlationId: "tool-123",
   metadata: {
-    tool: "web_search"
-  }
+    tool: "web_search",
+  },
 });
 ```
 
@@ -281,9 +281,7 @@ interface AgentAdapter {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
 
-  subscribe(
-    callback: (event: OrbEvent) => void
-  ): () => void;
+  subscribe(callback: (event: OrbEvent) => void): () => void;
 }
 ```
 
@@ -408,18 +406,18 @@ This makes it possible to experiment with the visual language independently of a
 
 ## Tech stack
 
-| Area | Technology |
-|---|---|
-| Framework | Next.js |
-| Language | TypeScript |
-| 3D | Three.js |
-| React 3D | React Three Fiber |
-| GPU effects | GLSL |
-| State | Zustand or equivalent |
-| Audio | Web Audio API |
-| Styling | Tailwind CSS |
-| Unit tests | Vitest |
-| E2E | Playwright |
+| Area        | Technology            |
+| ----------- | --------------------- |
+| Framework   | Next.js               |
+| Language    | TypeScript            |
+| 3D          | Three.js              |
+| React 3D    | React Three Fiber     |
+| GPU effects | GLSL                  |
+| State       | Zustand or equivalent |
+| Audio       | Web Audio API         |
+| Styling     | Tailwind CSS          |
+| Unit tests  | Vitest                |
+| E2E         | Playwright            |
 
 The reference particle renderer is designed around GPU-batched primitives rather than one Three.js mesh per particle.
 
@@ -427,12 +425,12 @@ The reference particle renderer is designed around GPU-batched primitives rather
 
 ## Getting started
 
-> **Current status:** specification-driven development. Commands below describe the intended repository workflow and should only be treated as available once the corresponding implementation lands.
+> **Current status:** Wave 0 foundation is being implemented against [SPEC 0.2.0](SPEC.md). The application shell and gated WebGL smoke run locally; the complete orb engine and demo are delivered by the later waves. See [implementation status](specs/IMPLEMENTATION-STATUS.md) for verified results and remaining gates.
 
 ### Requirements
 
-- Node.js
-- npm, pnpm, or equivalent package manager
+- Node.js 22 (the toolchain is verified with 22.22.2)
+- pnpm 10.18.2, as pinned in `package.json`
 - A modern WebGL-capable browser
 
 ### Development
@@ -441,8 +439,8 @@ The reference particle renderer is designed around GPU-batched primitives rather
 git clone https://github.com/brunobracaioli/aisac-orbs.git
 cd aisac-orbs
 
-npm install
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Then open:
@@ -451,7 +449,7 @@ Then open:
 http://localhost:3000
 ```
 
-The default demo should not require provider credentials.
+The current application shell requires no provider credentials. Setup and verification tools are documented in [CONTRIBUTING.md](CONTRIBUTING.md) and the [toolchain reference](docs/reference/toolchain.md).
 
 ---
 
@@ -637,7 +635,7 @@ See `CONTRIBUTING.md` once available.
 
 ## Project philosophy
 
-AI interfaces should communicate more than *“something is loading.”*
+AI interfaces should communicate more than _“something is loading.”_
 
 AISAC Orbs explores an interface in which users can understand whether an agent is listening, processing, proposing an action, waiting for approval, executing a tool, speaking, succeeding, or failing.
 
